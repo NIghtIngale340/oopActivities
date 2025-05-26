@@ -14,7 +14,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 
 public class TicketVendingMachine extends JFrame {
     private final String[] rides = {
@@ -35,6 +37,7 @@ public class TicketVendingMachine extends JFrame {
     private JComboBox<String> ticketTypeSelector;
     private JLabel priceLabel;
     private JTextField paymentField;
+    private JSpinner quantitySpinner;
     private double currentPrice;
     
     public TicketVendingMachine() {
@@ -68,6 +71,13 @@ public class TicketVendingMachine extends JFrame {
         ticketPanel.add(ticketTypeSelector);
         mainPanel.add(ticketPanel);
         
+        // Quantity selection
+        JPanel quantityPanel = new JPanel();
+        quantityPanel.add(new JLabel("Quantity: "));
+        quantitySpinner = new JSpinner(new SpinnerNumberModel(1, 1, 10, 1));
+        quantityPanel.add(quantitySpinner);
+        mainPanel.add(quantityPanel);
+        
         // Price display
         priceLabel = new JLabel("Total Price: ₱0.00");
         priceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -93,6 +103,7 @@ public class TicketVendingMachine extends JFrame {
         // Add event listeners
         rideSelector.addActionListener(e -> updatePrice());
         ticketTypeSelector.addActionListener(e -> updatePrice());
+        quantitySpinner.addChangeListener(e -> updatePrice());
         
         purchaseButton.addActionListener(e -> processPurchase());
         
@@ -108,15 +119,19 @@ public class TicketVendingMachine extends JFrame {
     private void updatePrice() {
         int rideIndex = rideSelector.getSelectedIndex();
         int ticketType = ticketTypeSelector.getSelectedIndex();
+        int quantity = (Integer) quantitySpinner.getValue();
         
-        currentPrice = prices[rideIndex];
+        double basePrice = prices[rideIndex];
         
         // Apply discounts based on ticket type
         if (ticketType == 1) { // Child
-            currentPrice *= 0.5; // 50% off
+            basePrice *= 0.5; // 50% off
         } else if (ticketType == 2) { // Senior
-            currentPrice *= 0.7; // 30% off
+            basePrice *= 0.7; // 30% off
         }
+        
+        // Multiply by quantity
+        currentPrice = basePrice * quantity;
         
         DecimalFormat df = new DecimalFormat("0.00");
         priceLabel.setText("Total Price: ₱" + df.format(currentPrice));
@@ -136,11 +151,13 @@ public class TicketVendingMachine extends JFrame {
             
             double change = payment - currentPrice;
             DecimalFormat df = new DecimalFormat("0.00");
+            int quantity = (Integer) quantitySpinner.getValue();
             
             // Log transaction
             System.out.println("\n=== Transaction Log ===");
             System.out.println("Ride: " + rides[rideSelector.getSelectedIndex()]);
             System.out.println("Ticket Type: " + ticketTypes[ticketTypeSelector.getSelectedIndex()]);
+            System.out.println("Quantity: " + quantity);
             System.out.println("Price: ₱" + df.format(currentPrice));
             System.out.println("Payment: ₱" + df.format(payment));
             System.out.println("Change: ₱" + df.format(change));
@@ -150,6 +167,7 @@ public class TicketVendingMachine extends JFrame {
             String ticket = "=== RIDE TICKET ===\n" +
                           "Ride: " + rides[rideSelector.getSelectedIndex()].split(" -")[0] + "\n" +
                           "Type: " + ticketTypes[ticketTypeSelector.getSelectedIndex()] + "\n" +
+                          "Quantity: " + quantity + "\n" +
                           "Price Paid: ₱" + df.format(currentPrice) + "\n" +
                           "Change: ₱" + df.format(change) + "\n" +
                           "================\n" +
@@ -171,6 +189,7 @@ public class TicketVendingMachine extends JFrame {
     private void resetMachine() {
         rideSelector.setSelectedIndex(0);
         ticketTypeSelector.setSelectedIndex(0);
+        quantitySpinner.setValue(1);
         paymentField.setText("");
         updatePrice();
     }

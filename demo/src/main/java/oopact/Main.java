@@ -2,6 +2,9 @@ package oopact;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello world!");
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            TicketVendingMachine machine = new TicketVendingMachine();
+            machine.setVisible(true);
+        });
     }
-} 
+}

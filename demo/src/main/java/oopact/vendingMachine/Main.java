@@ -1,4 +1,4 @@
-package oopact;
+package oopact.vendingMachine;
 
 public class Main {
     public static void main(String[] args) {

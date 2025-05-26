@@ -1,4 +1,4 @@
-package oopact;
+package oopact.vendingMachine;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
